@@ -1,3 +1,8 @@
+# Project specific 
+
+test.txt
+tmp.*
+mapping_database.json 
 # Logs
 logs
 *.log

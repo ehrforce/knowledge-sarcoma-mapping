@@ -1,2 +1,4 @@
-# knowledge-sarcoma-mapping
-Terminology mapping for Oncology Sarcoma prosjekt (Norway)
+# Eksport av kunnskapsbase for Sarkom
+
+## Status
+January 2025: First check in with a working CLI 
