@@ -187,6 +187,17 @@ async function getUniqueICD10Codes(f: string): Promise<string[]> {
 }
 async function cliLoad(f: string, out_file: string) {
   try {
+    const db: SarkomKnowledgeDatabase = await createKnowledgeDatabaseFromExcel(f);
+    fs.writeFileSync(out_file, JSON.stringify(db), { encoding: "utf-8" });
+
+  } catch (error) {
+    console.error("Error loading the CLI" + error);
+
+  }
+
+}
+export async function createKnowledgeDatabaseFromExcel(f: string): Promise<SarkomKnowledgeDatabase> {
+  try {
     const exist = fs.existsSync(f);
     if (exist) {
       const result = await loadMorphologyFromExcel(f);
@@ -197,15 +208,15 @@ async function cliLoad(f: string, out_file: string) {
         morphology: result.filter(x => x[1] == "x"),
         anatomy: anatomy
       }
-      fs.writeFileSync(out_file, JSON.stringify(db), { encoding: "utf-8" });
+      return db;
     } else {
-      console.warn("Given file does not exist" + f);
+      throw Error("Given files does not exist " + f);
     }
   } catch (error) {
-    console.error("Error loading the CLI" + error);
+
+    throw Error("Error loading knowledge from file " + f + ". Error " + error);
 
   }
-
 
 }
 

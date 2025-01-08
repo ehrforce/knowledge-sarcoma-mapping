@@ -1,11 +1,11 @@
 {
-  "name": "Sarkom Knowledge Builder",
-  "version": "1.0.0",
+  "name": "knowledge-sarcoma-mapping",
+  "version": "0.1.0",
   "description": "Uttrekk av kunnskapsbasen for Sarkom",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "(tsc &&  node dist/index.js -f ./excel/mapping.xlsx )&jest",
+    "test": "jest",
     "generate": "tsc && node dist/index.js -f ./excel/mapping.xlsx",
     "verify": "(tsc &&  node dist/index.js -f ./excel/mapping.xlsx )& node dist/index.js -v ./tmp.json"
   },
