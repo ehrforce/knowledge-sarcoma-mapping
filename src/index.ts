@@ -5,6 +5,7 @@ import { anatomyRowToDataSet } from './model/SarkomKnowledgeDatabase';
 import { SarkomKnowledgeDatabase } from "./model/model";
 import { writeIcd10ToCsv } from "./csv/icd10_to_csv";
 import { createKnowledgeDatabaseFromExcel } from "./createKnowledgeDatabaseFromExcel";
+import { createICD10Knowledge } from "./createICD10Knowledge";
 export type ICD10 = { code: string, name: string };
 
 
@@ -22,13 +23,15 @@ program.parse(process.argv);
 
 function addCommandLoadKnowledge(program: Command) {
 
-  const p = program.command("knowledge <excel_file>")
+  const p = program.command("knowledge <excel_file> <icd10_file>")
     .description("Extract knowledgedatabase from mappin.xlsx and export to json db file ")
     .option("-o --outfile [file]", "The file to write the knowledge to", "tmp.knowledge.json")
-    .action(async (excel_file: string, options: OptionValues) => {
+    .action(async (excel_file: string, icd10_file: string, options: OptionValues) => {
       const outfile = options.outfile;
-      console.log(`Loading knowledge from excel: ${excel_file}  to file ${outfile}`);
-      await cliLoad(excel_file, outfile);
+      console.log(`Loading knowledge from excel: ${excel_file}  ${excel_file} to file ${outfile}`);
+      const db: SarkomKnowledgeDatabase = await createKnowledgeDatabaseFromExcel(excel_file, icd10_file);
+      fs.writeFileSync(outfile, JSON.stringify(db), { encoding: "utf-8" });
+
     })
     ;
 
@@ -104,31 +107,10 @@ function addCommandIcd10(program: Command) {
     .option("-o --outfile <file>", "The file to write the codeset to", "tmp.icd10.codeset.txt")
     .option("-c --csv", "Write result as CSV")
     .action(async (mapping_file: string, icd10_file: string, options: OptionValues) => {
-      /**
-       * This action is a bit busy..... 
-       * @todo refactor ??? 
-       */
       const outfile: string = options.outfile;
       console.log(`Create codeset from excel files. Mapping: ${mapping_file}. ICD10: ${icd10_file}. Write to: ${outfile}`);
-      const uniques = await getUniqueICD10Codes(mapping_file);
-      const icdcodes = await loadExcelICD10(icd10_file);
 
-      type CodeSet = {
-        code: string;
-        name: string;
-      }
-
-      const result: CodeSet[] = [];
-      uniques.forEach(c => {
-        const i = icdcodes[c];
-        if (i) {
-          result.push({
-            code: c, name: i
-          })
-        } else {
-          console.warn(`The ICD10 code does not exist ${c}`);
-        }
-      })
+      const result = await createICD10Knowledge(mapping_file, icd10_file);
 
       if (options.csv) {
         let csvout = outfile;
@@ -146,8 +128,6 @@ function addCommandIcd10(program: Command) {
       }
     })
 }
-
-
 
 async function loadUniqueAnatomyCodesFromExcel(excelfile: string) {
   try {
@@ -167,8 +147,12 @@ async function loadUniqueAnatomyCodesFromExcel(excelfile: string) {
 
 
 
-
-async function getUniqueICD10Codes(f: string): Promise<string[]> {
+/**
+ * NB! Legge til manuelt C97 fordi den brukes ved multifokal registrering. 
+ * @param f 
+ * @returns 
+ */
+export async function getUniqueICD10Codes(f: string): Promise<string[]> {
   try {
     const exixts = fs.existsSync(f);
     if (exixts) {
@@ -186,17 +170,7 @@ async function getUniqueICD10Codes(f: string): Promise<string[]> {
     throw err;
   }
 }
-async function cliLoad(f: string, out_file: string) {
-  try {
-    const db: SarkomKnowledgeDatabase = await createKnowledgeDatabaseFromExcel(f);
-    fs.writeFileSync(out_file, JSON.stringify(db), { encoding: "utf-8" });
 
-  } catch (error) {
-    console.error("Error loading the CLI" + error);
-
-  }
-
-}
 function loadUniqueIcd10Codes(rows: Array<any>) {
 
   const m = mapper();

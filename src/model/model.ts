@@ -5,6 +5,7 @@ export type SarkomKnowledgeDatabase = {
     file: string;
     morphology: MorphologyRow[];
     anatomy: AnatomyRow[];
+    icd10: ICD10Row[]
 
 };
 
@@ -19,7 +20,6 @@ export type AnatomyData = {
     icd10Malign: string;
     icd10Uncertain: string;
     category: number;
-    grading: number;
     comment: string;
 };
 export type AnatomyRow = [
@@ -32,13 +32,17 @@ export type AnatomyRow = [
     string, // ICD-10 benign
     string, // ICD-10 maling
     string, // ICD-10 uncertain
-    number, // anatomical category 
-    number, // grading
+    number, // anatomical category     
     string // comment
 ];
 
+export type ICD10Row = [
+    string,  // ICD10 koden 
+    string // Navn/betegnelse på ICD10 koden 
+]
 
-export function anatomyRowToDataSet(t: AnatomyRow, term:string): AnatomyData {
+
+export function anatomyRowToDataSet(t: AnatomyRow, term: string): AnatomyData {
     return {
         code: term + t[0],
         parent: term + t[1],
@@ -50,8 +54,7 @@ export function anatomyRowToDataSet(t: AnatomyRow, term:string): AnatomyData {
         icd10Malign: t[7],
         icd10Uncertain: t[8],
         category: t[9],
-        grading: t[10],
-        comment: t[11]
+        comment: t[10]
     };
 }
 
@@ -131,7 +134,7 @@ export type MorphologyRow = [
 
 ];
 
-export function morphologyRowToDataSet(row: MorphologyRow, termId:string): MorphologyDataSet {
+export function morphologyRowToDataSet(row: MorphologyRow, termId: string): MorphologyDataSet {
     return {
         code: termId + row[0],
         include: row[1],

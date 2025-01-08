@@ -1,8 +1,8 @@
-import * as fs from 'fs';
+
 import { SarkomKnowledgeDatabase } from './model';
 import { KnowledgeManager } from './manager';
 import { createKnowledgeDatabaseFromExcel } from "../createKnowledgeDatabaseFromExcel";
-import exp from 'constants';
+
 
 describe("can-load-knowledge", () => {
 
@@ -28,16 +28,16 @@ describe("verify-data", () => {
         const item = await mydb.code("1000");
         expect(item).not.toBeNull();
     })
-    test("max-1177", async ()=>{
+    test("max-1177", async () => {
         const item = await mydb.code("1177");
         expect(item).not.toBeNull();
         expect(item?.description).toBe("Vagina");
     })
-    test("kranium-1001", async()=>{
+    test("kranium-1001", async () => {
         const item = await mydb.code("1001");
         expect(item?.name).toBe("Kranium");
     })
-    test("first-costa-1021", async()=>{
+    test("first-costa-1021", async () => {
         const item = await mydb.code("1021");
         expect(item?.name).toBe("Første costa");
     })
