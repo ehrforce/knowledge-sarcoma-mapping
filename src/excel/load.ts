@@ -8,16 +8,18 @@ import { AnatomyRow, MorphologyRow } from '../model/SarkomKnowledgeDatabase';
 /**
  * 
  * @param fullPathToFile 
- * @param sheetNumber the sheet number for anatomy information (default is 1 (= second))
+ * @param [sheetNumber=1} the sheet number for anatomy information (default is 1 (= second))
+ * @param [headerRows=2] defines which row to start reading data from. The Excel sheet have two header rows. 
  * @returns 
  */
-export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber = 1): Promise<Array<any>> {
+export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber = 1, headerRows = 2): Promise<Array<any>> {
     const wb = XLSX.readFile(fullPathToFile);
     const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[sheetNumber]], { header: 1 });
     let i = 0;
+
     const result: any[] = [];
     data.forEach(row => {
-        if (i > 0) {
+        if (i > headerRows) {
             result.push(rowToAnatomy(row));
         }
         i++;
@@ -41,13 +43,12 @@ export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber =
                 asString(row[6]), // ICD-10 benign
                 asString(row[7]), // ICD-10 malign
                 asString(row[8]), // ICD-10 uncertain
-                asNumber(row[9]), // category
-                asNumber(row[10]), // grading
-                asString(row[11]) // comment
+                asNumber(row[9]), // category                
+                asString(row[10]) // comment
 
             ]
         } else {
-            return [-1, -1, "", "", "", "", "", "", "", -1, -1, "ERROR"]
+            return [-1, -1, "", "", "", "", "", "", "", -1, "ERROR"]
         }
     }
 }

@@ -12,7 +12,7 @@ export type AnatomyData = {
     icd10Malign: string;
     icd10Uncertain: string;
     category: number;
-    grading: number;
+    //grading: number;
     comment: string;
 };
 export type AnatomyRow = [
@@ -26,8 +26,8 @@ export type AnatomyRow = [
     string, // ICD-10 maling
     string, // ICD-10 uncertain
     number, // anatomical category 
-    number, // grading
     string // comment
+    
 ];
 
 
@@ -43,8 +43,8 @@ export function anatomyRowToDataSet(t: AnatomyRow, term = "SA"): AnatomyData {
         icd10Malign: t[7],
         icd10Uncertain: t[8],
         category: t[9],
-        grading: t[10],
-        comment: t[11]
+        comment: t[10]
+        
     };
 }
 
@@ -86,6 +86,11 @@ export function KnowledgeCodeMapper() {
         }
 
     }
+    /**
+     * @deprecated Grading was taken out of the Excel sheet december 2024
+     * @param n 
+     * @returns 
+     */
     function mapGrading(n: number) {
         //1=WHO ben, 2=FNCLCC, 3=Joensuu GIST, 4=FIGO
         switch (n) {
