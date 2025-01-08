@@ -1,13 +1,14 @@
 import { Command, OptionValues } from "commander";
 import * as fs from 'fs';
-import { loadAnatomyFromExcel, loadExcelICD10, loadMorphologyFromExcel, } from "./excel/load";
+import { loadAnatomyFromExcel, loadExcelICD10, } from "./excel/load";
 import { anatomyRowToDataSet } from './model/SarkomKnowledgeDatabase';
 import { SarkomKnowledgeDatabase } from "./model/model";
 import { writeIcd10ToCsv } from "./csv/icd10_to_csv";
+import { createKnowledgeDatabaseFromExcel } from "./createKnowledgeDatabaseFromExcel";
 export type ICD10 = { code: string, name: string };
 
 
-export const program = new Command("sarcoma-knowledge-builder");
+const program = new Command("sarcoma-knowledge-builder");
 program.version("0.0.1")
   .description("CLI to extract knowledge from Excel spreadsheets");
 
@@ -196,30 +197,6 @@ async function cliLoad(f: string, out_file: string) {
   }
 
 }
-export async function createKnowledgeDatabaseFromExcel(f: string): Promise<SarkomKnowledgeDatabase> {
-  try {
-    const exist = fs.existsSync(f);
-    if (exist) {
-      const result = await loadMorphologyFromExcel(f);
-      const anatomy = await loadAnatomyFromExcel(f);
-      const db: SarkomKnowledgeDatabase = {
-        generated: new Date(Date.now()).toISOString(),
-        file: f,
-        morphology: result.filter(x => x[1] == "x"),
-        anatomy: anatomy
-      }
-      return db;
-    } else {
-      throw Error("Given files does not exist " + f);
-    }
-  } catch (error) {
-
-    throw Error("Error loading knowledge from file " + f + ". Error " + error);
-
-  }
-
-}
-
 function loadUniqueIcd10Codes(rows: Array<any>) {
 
   const m = mapper();

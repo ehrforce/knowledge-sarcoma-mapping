@@ -88,7 +88,17 @@ export class KnowledgeManager {
 
     }
     private anatomyDataToCodedItem(a: AnatomyData): CodedItem {
-        return new CodedItem(a.code, a.location, a.location, KnowledgeManager.TERM_ID_ANATOMY);
+        if (a.code == a.parent) {
+            // this is a parent node 
+
+            return createCodedItem(a.code, a.organ);
+        }
+        return createCodedItem(a.code, a.location);
+
+        function createCodedItem(code: string, name: string) {
+            const n = name.trim();
+            return new CodedItem(code.trim(), n, n, KnowledgeManager.CODE_PREFIX_ANATOMY);
+        }
     }
 
     public getAnatomyLocationCodes(): CodedItem[] {
