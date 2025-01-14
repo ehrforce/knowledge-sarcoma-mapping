@@ -35,9 +35,9 @@ export function mapAnatomicalOrganTextToEnum(t?: DvText): AnatomicalOrgan {
 }
 
 export class KnowledgeManager {
-    private readonly Version = "0.0.1-alpha";
-    public static readonly TERM_ID_MORPHOLOGY = "no.onk.morfologi";
-    public static readonly TERM_ID_ANATOMY = "no.onk.anatomi";
+    private readonly Version = "0.0.2-alpha";
+    public static readonly TERM_ID_MORPHOLOGY = "no.onk.morfologi.sarkom";
+    public static readonly TERM_ID_ANATOMY = "no.onk.anatomi.sarkom";
     public static readonly CODE_PREFIX_ANATOMY = "A";
     public static readonly CODE_PREFIX_MORPHOLOGY = "M";
     private morphology: MorphologyDataSet[];
