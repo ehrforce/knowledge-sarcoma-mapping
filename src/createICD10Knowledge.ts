@@ -1,9 +1,36 @@
 import { getUniqueICD10Codes } from ".";
 import { loadExcelICD10 } from "./excel/load";
 
+/**
+ * This is a minor hack! 
+ * The anatomy map does not include C97. To make it present in the overall list of ICD10 codes we need to add it specific. 
+ * 
+ * Added as an array to make it simpler to add additional codes later if needed 
+ */
+const additionalCodes: string[] = ["C97"];
+/**
+ * 
+ * @param mapping_file 
+ * @param icd10_file 
+ * @param additionalCodes 
+ * @returns 
+ */
 export async function createICD10Knowledge(mapping_file: string, icd10_file: string) {
   const uniques = await getUniqueICD10Codes(mapping_file);
   const icdcodes = await loadExcelICD10(icd10_file);
+
+
+
+
+  additionalCodes.forEach(c => {
+    const exist = uniques.find(x => x == c);
+    if (!exist) {
+      uniques.push(c);
+    }
+  })
+
+
+
   return icd10MapData(uniques, icdcodes);
 
 

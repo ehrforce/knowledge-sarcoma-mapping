@@ -1,11 +1,12 @@
 import { Command, OptionValues } from "commander";
 import * as fs from 'fs';
 import { loadAnatomyFromExcel, loadExcelICD10, } from "./excel/load";
-import { anatomyRowToDataSet } from './model/SarkomKnowledgeDatabase';
-import { SarkomKnowledgeDatabase } from "./model/model";
+
+import { anatomyRowToDataSet, SarkomKnowledgeDatabase } from "./model/model";
 import { writeIcd10ToCsv } from "./csv/icd10_to_csv";
 import { createKnowledgeDatabaseFromExcel } from "./createKnowledgeDatabaseFromExcel";
 import { createICD10Knowledge } from "./createICD10Knowledge";
+import { KnowledgeManager } from "./model/manager";
 export type ICD10 = { code: string, name: string };
 
 
@@ -43,7 +44,7 @@ function addCommandAnatomySnomedCt(program: Command) {
     .option("-o --outfile", "The file to write SNOMED-CT codes", "tmp.anatomy.snomed-ct.txt")
     .action(async (mapping_file: string, options: OptionValues) => {
       const data = await loadUniqueAnatomyCodesFromExcel(mapping_file);
-      const codes = data.map(x => anatomyRowToDataSet(x));
+      const codes = data.map(x => anatomyRowToDataSet(x, KnowledgeManager.CODE_PREFIX_ANATOMY));
       const snomeds: Record<string, string> = {};
       codes.forEach(c => {
         const sct = c.snomed_ct.replace(";", "").trim();
@@ -103,7 +104,7 @@ function addCommandIcd10(program: Command) {
     })
 
   p.command("codeset <mapping_file> <icd10_file>")
-    .description("Extract unique ICD10 codes defined in mapping and create a codeset file to be used in applications")
+    .description("Extract unique ICD10 codes defined in mapping and create a codeset file to be used in applications (with additional code C97)")
     .option("-o --outfile <file>", "The file to write the codeset to", "tmp.icd10.codeset.txt")
     .option("-c --csv", "Write result as CSV")
     .action(async (mapping_file: string, icd10_file: string, options: OptionValues) => {
@@ -175,7 +176,7 @@ function loadUniqueIcd10Codes(rows: Array<any>) {
 
   const m = mapper();
   rows.forEach(r => {
-    const a = anatomyRowToDataSet(r);
+    const a = anatomyRowToDataSet(r, KnowledgeManager.CODE_PREFIX_ANATOMY);
     m.add(a.icd10Benign);
     m.add(a.icd10Malign);
     m.add(a.icd10Uncertain);

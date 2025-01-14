@@ -1,5 +1,6 @@
 import { CodedItem, DvCodedText, DvText } from 'ehrcraft-form-api';
-import { SarkomKnowledgeDatabase, MorphologyDataSet, morphologyRowToDataSet, AnatomyData, anatomyRowToDataSet } from './model';
+import { SarkomKnowledgeDatabase, MorphologyDataSet, morphologyRowToDataSet, AnatomyData, anatomyRowToDataSet, ICD10Row } from './model';
+import { ICD10 } from '../index';
 
 /**
  * ben=1, bløtvev=2, indre ograner+retroperitenum=3, genitalia = 4,  ukjent lokasjon=5
@@ -41,10 +42,12 @@ export class KnowledgeManager {
     public static readonly CODE_PREFIX_MORPHOLOGY = "M";
     private morphology: MorphologyDataSet[];
     private anataomy: AnatomyData[];
+    private ICD10:ICD10Row[];
     constructor(db: SarkomKnowledgeDatabase) {
 
         this.morphology = db.morphology.map(x => morphologyRowToDataSet(x, KnowledgeManager.CODE_PREFIX_MORPHOLOGY));
         this.anataomy = db.anatomy.map(x => anatomyRowToDataSet(x, KnowledgeManager.CODE_PREFIX_ANATOMY));
+        this.ICD10 = db.icd10;
 
     }
     public toString(): string {
@@ -176,13 +179,13 @@ export class KnowledgeManager {
             return undefined;
         }
 
+    } 
 
-
-
-
-
-
-
+    public icd10ToCodeItems(): CodedItem[]{
+        return this.ICD10.map(x => toCodedItem(x));        
+        function toCodedItem(r:ICD10Row):CodedItem{
+            return new CodedItem(r[0], r[1], r[1], "ICD10");
+        }
     }
 
 

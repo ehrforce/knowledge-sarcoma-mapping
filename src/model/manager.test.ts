@@ -68,7 +68,7 @@ function testbd() {
 
 
 async function loadDb(): Promise<SarkomKnowledgeDatabase> {
-    const data = await createKnowledgeDatabaseFromExcel("./excel/mapping.xlsx");
+    const data = await createKnowledgeDatabaseFromExcel("./excel/mapping.xlsx", "./excel/icd10.xlsx");
     return data;
 
 }

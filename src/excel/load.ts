@@ -3,7 +3,8 @@ import * as XLSX from 'xlsx';
 
 import { asNumber } from './asNumber';
 import { asString } from './asString';
-import { AnatomyRow, MorphologyRow } from '../model/SarkomKnowledgeDatabase';
+import { AnatomyRow, MorphologyRow } from '../model/model';
+
 
 /**
  * 
