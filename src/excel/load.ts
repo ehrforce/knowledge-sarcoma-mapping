@@ -44,8 +44,8 @@ export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber =
                 asString(row[6]), // ICD-10 benign
                 asString(row[7]), // ICD-10 malign
                 asString(row[8]), // ICD-10 uncertain
-                asNumber(row[9]), // category                
-                asString(row[10]) // comment
+                asNumber(row[10]), // category                
+                asString(row[11]) // comment
 
             ]
         } else {
