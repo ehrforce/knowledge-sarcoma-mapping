@@ -21,6 +21,8 @@
   "author": "Bjørn Næss <bna@dips.no>",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "@vercel/blob": "^2.0.0",
     "commander": "^12.1.0",
     "ehrcraft-form-api": "^2.4.0",
     "fast-csv": "^5.0.2",
@@ -39,6 +41,7 @@
     "@types/xlsx": "^0.0.35",
     "eslint-config-next": "^16.1.1",
     "jest": "^29.7.0",
+    "prisma": "^7.2.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"

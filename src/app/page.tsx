@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DropZone from "@/components/DropZone";
 import ResultTable from "@/components/ResultTable";
-import { Sparkles, Download, RefreshCcw, AlertTriangle, Table, Code, Save } from "lucide-react";
+import { Sparkles, Download, RefreshCcw, AlertTriangle, Table, Code, Save, Database, History } from "lucide-react";
 
 export default function Home() {
     const [mappingFile, setMappingFile] = useState<File | null>(null);
     const [icd10File, setIcd10File] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isLoadingMaster, setIsLoadingMaster] = useState(true);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<"detailed" | "compact">("detailed");
@@ -16,12 +17,36 @@ export default function Home() {
     const [copied, setCopied] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Fetch Master Data on load
+    useEffect(() => {
+        fetchMaster();
+    }, []);
+
+    const fetchMaster = async () => {
+        setIsLoadingMaster(true);
+        setError(null);
+        try {
+            const response = await fetch("/api/generate");
+            if (response.ok) {
+                const data = await response.json();
+                setResult(data);
+            } else if (response.status !== 404) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Failed to fetch master data");
+            }
+        } catch (err: any) {
+            console.error(err);
+            setError("Could not load master data: " + err.message);
+        } finally {
+            setIsLoadingMaster(false);
+        }
+    };
+
     const handleProcess = async () => {
         if (!mappingFile || !icd10File) return;
 
         setIsProcessing(true);
         setError(null);
-        setResult(null);
 
         const formData = new FormData();
         formData.append("mapping", mappingFile);
@@ -35,11 +60,14 @@ export default function Home() {
 
             if (!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.error || "Failed to process files");
+                throw new Error(errData.error || "Failed to update master data");
             }
 
             const data = await response.json();
             setResult(data);
+            // Clear local files after successful upload to master
+            setMappingFile(null);
+            setIcd10File(null);
         } catch (err: any) {
             console.error(err);
             setError(err.message);
@@ -81,122 +109,150 @@ export default function Home() {
             </div>
 
             <div className="glass-card flex flex-col gap-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <DropZone
-                        label="Mapping Excel (.xlsx)"
-                        onFileSelect={setMappingFile}
-                    />
-                    <DropZone
-                        label="ICD-10 Excel (.xlsx)"
-                        onFileSelect={setIcd10File}
-                    />
-                </div>
-
-                <div className="flex justify-center border-t border-slate-800 pt-8">
-                    {!result ? (
-                        <button
-                            className="button flex items-center gap-2 text-lg px-8 py-3"
-                            disabled={!mappingFile || !icd10File || isProcessing}
-                            onClick={handleProcess}
-                        >
-                            {isProcessing ? (
-                                <>
-                                    <RefreshCcw className="animate-spin" size={20} />
-                                    Processing...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles size={20} />
-                                    Generate Knowledge DB
-                                </>
-                            )}
-                        </button>
-                    ) : (
-                        <div className="flex flex-col items-center gap-4 animate-in w-full">
-                            <div className="bg-emerald-500/10 text-emerald-400 px-6 py-4 rounded-xl border border-emerald-500/20 flex flex-col items-center text-center w-full max-w-md">
-                                <p className="font-bold text-lg mb-1">Success!</p>
-                                <p className="text-sm opacity-80">
-                                    {result.morphology?.length || 0} morphology codes & {result.anatomy?.length || 0} anatomy nodes extracted.
-                                </p>
-                            </div>
-
-                            <div className="flex gap-2 p-1 bg-slate-900/50 rounded-lg border border-slate-800">
-                                <button
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${displayMode === "table" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
-                                    onClick={() => setDisplayMode("table")}
-                                >
-                                    <Table size={18} />
-                                    Table View
-                                </button>
-                                <button
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${displayMode === "json" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
-                                    onClick={() => setDisplayMode("json")}
-                                >
-                                    <Code size={18} />
-                                    JSON Preview
-                                </button>
-                            </div>
-
-                            {displayMode === "table" ? (
-                                <ResultTable data={result} />
-                            ) : (
-                                <div className="w-full preview-container animate-in text-left">
-                                    <div className="preview-header">
-                                        <div className="toggle-group">
-                                            <button
-                                                className={`toggle-btn ${viewMode === "detailed" ? "active" : ""}`}
-                                                onClick={() => setViewMode("detailed")}
-                                            >
-                                                Detailed
-                                            </button>
-                                            <button
-                                                className={`toggle-btn ${viewMode === "compact" ? "active" : ""}`}
-                                                onClick={() => setViewMode("compact")}
-                                            >
-                                                Compact
-                                            </button>
-                                        </div>
-                                        <button className="copy-btn" onClick={copyToClipboard}>
-                                            {copied ? "Copied!" : "Copy JSON"}
-                                        </button>
+                {isLoadingMaster ? (
+                    <div className="flex flex-col items-center justify-center py-20 animate-in">
+                        <RefreshCcw className="animate-spin text-blue-500 mb-4" size={40} />
+                        <p className="text-slate-400 font-medium">Fetching shared master data...</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex flex-col gap-6">
+                            <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                                <Database className="text-blue-400" size={20} />
+                                <h2 className="text-xl font-semibold">Master Configuration</h2>
+                                {result?._metadata && (
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 ml-auto bg-slate-800/50 px-3 py-1 rounded-full">
+                                        <History size={14} />
+                                        Last Updated: {new Date(result._metadata.updatedAt).toLocaleString()}
                                     </div>
-                                    <pre className="preview-content">
-                                        {viewMode === "detailed"
-                                            ? JSON.stringify(result, null, 2)
-                                            : JSON.stringify(result)}
-                                    </pre>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <DropZone
+                                    label={result?._metadata?.mappingName || "Mapping Excel (.xlsx)"}
+                                    onFileSelect={setMappingFile}
+                                />
+                                <DropZone
+                                    label={result?._metadata?.icd10Name || "ICD-10 Excel (.xlsx)"}
+                                    onFileSelect={setIcd10File}
+                                />
+                            </div>
+
+                            {mappingFile && icd10File && (
+                                <div className="flex justify-center py-4 animate-in">
+                                    <button
+                                        className="button flex items-center gap-2 text-lg px-8 py-3 bg-emerald-600 hover:bg-emerald-700"
+                                        disabled={isProcessing}
+                                        onClick={handleProcess}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <RefreshCcw className="animate-spin" size={20} />
+                                                Updating Master...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Save size={20} />
+                                                Update Shared Master Data
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
                             )}
-
-                            <div className="flex flex-wrap justify-center gap-4 border-t border-slate-800 pt-8 w-full">
-                                <button
-                                    className="button flex items-center gap-2 px-6"
-                                    onClick={downloadJson}
-                                >
-                                    <Download size={18} />
-                                    Download JSON
-                                </button>
-                                <button
-                                    className="px-6 py-3 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 transition text-blue-400 flex items-center gap-2"
-                                    onClick={() => {
-                                        setIsSaving(true);
-                                        setTimeout(() => setIsSaving(false), 1500);
-                                    }}
-                                    disabled={isSaving}
-                                >
-                                    <Save size={18} />
-                                    {isSaving ? "Storing..." : "Store Files"}
-                                </button>
-                                <button
-                                    className="px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 transition text-slate-300"
-                                    onClick={() => setResult(null)}
-                                >
-                                    Start Over
-                                </button>
-                            </div>
                         </div>
-                    )}
-                </div>
+
+                        {result && (
+                            <div className="flex flex-col items-center gap-4 animate-in w-full border-t border-slate-800 pt-8">
+                                <div className="bg-emerald-500/10 text-emerald-400 px-6 py-4 rounded-xl border border-emerald-500/20 flex flex-col items-center text-center w-full max-w-md mb-4">
+                                    <p className="font-bold text-lg mb-1">Active Data</p>
+                                    <p className="text-sm opacity-80">
+                                        {result.morphology?.length || 0} morphology codes & {result.anatomy?.length || 0} anatomy nodes.
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-2 p-1 bg-slate-900/50 rounded-lg border border-slate-800">
+                                    <button
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${displayMode === "table" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
+                                        onClick={() => setDisplayMode("table")}
+                                    >
+                                        <Table size={18} />
+                                        Table View
+                                    </button>
+                                    <button
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${displayMode === "json" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
+                                        onClick={() => setDisplayMode("json")}
+                                    >
+                                        <Code size={18} />
+                                        JSON Preview
+                                    </button>
+                                </div>
+
+                                {displayMode === "table" ? (
+                                    <ResultTable data={result} />
+                                ) : (
+                                    <div className="w-full preview-container animate-in text-left">
+                                        <div className="preview-header">
+                                            <div className="toggle-group">
+                                                <button
+                                                    className={`toggle-btn ${viewMode === "detailed" ? "active" : ""}`}
+                                                    onClick={() => setViewMode("detailed")}
+                                                >
+                                                    Detailed
+                                                </button>
+                                                <button
+                                                    className={`toggle-btn ${viewMode === "compact" ? "active" : ""}`}
+                                                    onClick={() => setViewMode("compact")}
+                                                >
+                                                    Compact
+                                                </button>
+                                            </div>
+                                            <button className="copy-btn" onClick={copyToClipboard}>
+                                                {copied ? "Copied!" : "Copy JSON"}
+                                            </button>
+                                        </div>
+                                        <pre className="preview-content">
+                                            {viewMode === "detailed"
+                                                ? JSON.stringify(result, null, 2)
+                                                : JSON.stringify(result)}
+                                        </pre>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap justify-center gap-4 border-t border-slate-800 pt-8 w-full">
+                                    <button
+                                        className="button flex items-center gap-2 px-6"
+                                        onClick={downloadJson}
+                                    >
+                                        <Download size={18} />
+                                        Download JSON
+                                    </button>
+
+                                    {result?._metadata && (
+                                        <div className="flex gap-4">
+                                            <a
+                                                href={result._metadata.mappingUrl}
+                                                className="px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 transition text-slate-300 flex items-center gap-2"
+                                                download
+                                            >
+                                                <Download size={18} />
+                                                Download {result._metadata.mappingName}
+                                            </a>
+                                            <a
+                                                href={result._metadata.icd10Url}
+                                                className="px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 transition text-slate-300 flex items-center gap-2"
+                                                download
+                                            >
+                                                <Download size={18} />
+                                                Download {result._metadata.icd10Name}
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
 
                 {error && (
                     <div className="bg-red-500/10 text-red-400 px-4 py-3 rounded-lg border border-red-500/20 flex items-center gap-3 animate-in">
