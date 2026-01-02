@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
         const icd10Buffer = Buffer.from(await icd10File.arrayBuffer());
 
         // 1. Upload to Vercel Blob
-        const mappingBlob = await put(`mappings/${mappingFile.name}`, mappingBuffer, { access: 'public' });
-        const icd10Blob = await put(`icd10/${icd10File.name}`, icd10Buffer, { access: 'public' });
+        const mappingBlob = await put(`mappings/${mappingFile.name}`, mappingBuffer, { access: 'public', addRandomSuffix: true });
+        const icd10Blob = await put(`icd10/${icd10File.name}`, icd10Buffer, { access: 'public', addRandomSuffix: true });
 
         // 2. Update Database
         const config = await prisma().configuration.create({
