@@ -138,3 +138,6 @@ dist
 .pnp.*
 
 /src/generated/prisma
+
+.vercel
+.env*.local
