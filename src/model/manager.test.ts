@@ -31,7 +31,7 @@ describe("verify-data", () => {
     test("max-1177", async () => {
         const item = await mydb.code("1177");
         expect(item).not.toBeNull();
-        expect(item?.description).toBe("Vagina");
+        expect(item?.description).toBe("Nyre");
     })
     test("kranium-1001", async () => {
         const item = await mydb.code("1001");
@@ -68,7 +68,7 @@ function testbd() {
 
 
 async function loadDb(): Promise<SarkomKnowledgeDatabase> {
-    const data = await createKnowledgeDatabaseFromExcel("./excel/mapping.xlsx", "./excel/icd10.xlsx");
+    const data = await createKnowledgeDatabaseFromExcel("./excel/mapping_sjk.v14.xlsx", "./excel/icd10.xlsx");
     return data;
 
 }

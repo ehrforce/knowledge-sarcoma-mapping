@@ -1,4 +1,4 @@
-import { getUniqueICD10Codes } from ".";
+import { getUniqueICD10Codes } from "./utils/icd10";
 import { loadExcelICD10 } from "./excel/load";
 
 /**
