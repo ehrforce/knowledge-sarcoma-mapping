@@ -4,10 +4,14 @@
   "description": "Uttrekk av kunnskapsbasen for Sarkom",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "dev": "next dev",
+    "build": "next build",
+    "build:cli": "tsc -p tsconfig.cli.json",
+    "start": "next start",
+    "lint": "next lint",
     "test": "jest",
-    "generate": "tsc && node dist/index.js -f ./excel/mapping.xlsx",
-    "verify": "(tsc &&  node dist/index.js -f ./excel/mapping.xlsx )& node dist/index.js -v ./tmp.json"
+    "generate": "npm run build:cli && node dist/cli/index.js -f ./excel/mapping.xlsx",
+    "verify": "(npm run build:cli && node dist/cli/index.js -f ./excel/mapping.xlsx )& node dist/cli/index.js -v ./tmp.json"
   },
   "keywords": [
     "openEHR",
@@ -20,13 +24,20 @@
     "commander": "^12.1.0",
     "ehrcraft-form-api": "^2.4.0",
     "fast-csv": "^5.0.2",
+    "lucide-react": "^0.562.0",
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/commander": "^2.12.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@types/xlsx": "^0.0.35",
+    "eslint-config-next": "^16.1.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",

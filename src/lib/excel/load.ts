@@ -13,8 +13,8 @@ import { AnatomyRow, MorphologyRow } from '../model/model';
  * @param [headerRows=2] defines which row to start reading data from. The Excel sheet have two header rows. 
  * @returns 
  */
-export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber = 1, headerRows = 0): Promise<Array<any>> {
-    const wb = XLSX.readFile(fullPathToFile);
+export async function loadAnatomyFromExcel(input: string | Buffer | ArrayBuffer, sheetNumber = 1, headerRows = 0): Promise<Array<any>> {
+    const wb = typeof input === 'string' ? XLSX.readFile(input) : XLSX.read(input);
     const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[sheetNumber]], { header: 1 });
     let i = 0;
 
@@ -60,8 +60,8 @@ export async function loadAnatomyFromExcel(fullPathToFile: string, sheetNumber =
  * @param sheetNumber sheetNumber for morphology (default is 0 (first sheet))
  * @returns 
  */
-export async function loadMorphologyFromExcel(fullPathToFile: string, sheetNumber = 0): Promise<MorphologyRow[]> {
-    const wb: XLSX.WorkBook = XLSX.readFile(fullPathToFile);
+export async function loadMorphologyFromExcel(input: string | Buffer | ArrayBuffer, sheetNumber = 0): Promise<MorphologyRow[]> {
+    const wb: XLSX.WorkBook = typeof input === 'string' ? XLSX.readFile(input) : XLSX.read(input);
     var data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[sheetNumber]], { header: 1 });
     let i = 0;
     const result: MorphologyRow[] = [];
@@ -97,8 +97,8 @@ export async function loadMorphologyFromExcel(fullPathToFile: string, sheetNumbe
 
 }
 
-export async function loadExcelICD10(fullPathToFile: string): Promise<Record<string, string>> {
-    const wb: XLSX.WorkBook = XLSX.readFile(fullPathToFile);
+export async function loadExcelICD10(input: string | Buffer | ArrayBuffer): Promise<Record<string, string>> {
+    const wb: XLSX.WorkBook = typeof input === 'string' ? XLSX.readFile(input) : XLSX.read(input);
     const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
     let i = 0;
     let result: Record<string, string> = {};

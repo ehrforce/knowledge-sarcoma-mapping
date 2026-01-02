@@ -1,13 +1,13 @@
 import { Command, OptionValues } from "commander";
 import * as fs from 'fs';
-import { loadAnatomyFromExcel, loadExcelICD10, } from "./excel/load";
+import { loadAnatomyFromExcel, loadExcelICD10, } from "../lib/excel/load";
 
-import { anatomyRowToDataSet, SarkomKnowledgeDatabase } from "./model/model";
-import { writeIcd10ToCsv } from "./csv/icd10_to_csv";
-import { createKnowledgeDatabaseFromExcel } from "./createKnowledgeDatabaseFromExcel";
-import { createICD10Knowledge } from "./createICD10Knowledge";
-import { KnowledgeManager } from "./model/manager";
-import { getUniqueICD10Codes, loadUniqueAnatomyCodesFromExcel } from "./utils/icd10";
+import { anatomyRowToDataSet, SarkomKnowledgeDatabase } from "../lib/model/model";
+import { writeIcd10ToCsv } from "../lib/csv/icd10_to_csv";
+import { createKnowledgeDatabaseFromExcel } from "../lib/createKnowledgeDatabaseFromExcel";
+import { createICD10Knowledge } from "../lib/createICD10Knowledge";
+import { KnowledgeManager } from "../lib/model/manager";
+import { getUniqueICD10Codes, loadUniqueAnatomyCodesFromExcel } from "../lib/utils/icd10";
 
 
 const program = new Command("sarcoma-knowledge-builder");

@@ -15,7 +15,7 @@ const additionalCodes: string[] = ["C97"];
  * @param additionalCodes 
  * @returns 
  */
-export async function createICD10Knowledge(mapping_file: string, icd10_file: string) {
+export async function createICD10Knowledge(mapping_file: string | Buffer | ArrayBuffer, icd10_file: string | Buffer | ArrayBuffer) {
   const uniques = await getUniqueICD10Codes(mapping_file);
   const icdcodes = await loadExcelICD10(icd10_file);
 

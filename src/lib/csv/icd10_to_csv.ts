@@ -1,5 +1,5 @@
 import * as csv from 'fast-csv';
-import { ICD10 } from '..';
+import { ICD10 } from '../utils/icd10';
 
 export async function writeIcd10ToCsv(data: ICD10[], outfile?: string): Promise<string> {
     if (outfile) {

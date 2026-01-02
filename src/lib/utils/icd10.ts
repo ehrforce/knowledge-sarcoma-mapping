@@ -5,13 +5,14 @@ import { KnowledgeManager } from "../model/manager";
 
 export type ICD10 = { code: string, name: string };
 
-export async function loadUniqueAnatomyCodesFromExcel(excelfile: string) {
+export async function loadUniqueAnatomyCodesFromExcel(input: string | Buffer | ArrayBuffer) {
     try {
-        if (!fs.existsSync(excelfile)) {
-            throw Error("Excel file does not exist" + excelfile);
+        const isBuffer = Buffer.isBuffer(input) || input instanceof ArrayBuffer;
+        if (!isBuffer && !fs.existsSync(input as string)) {
+            throw Error("Excel file does not exist" + input);
         }
 
-        const data = await loadAnatomyFromExcel(excelfile);
+        const data = await loadAnatomyFromExcel(input);
         return data;
     } catch (err) {
         console.error("Could not load anatomy from excel due to" + err);
@@ -25,11 +26,12 @@ export async function loadUniqueAnatomyCodesFromExcel(excelfile: string) {
  * @param f 
  * @returns 
  */
-export async function getUniqueICD10Codes(f: string): Promise<string[]> {
+export async function getUniqueICD10Codes(input: string | Buffer | ArrayBuffer): Promise<string[]> {
     try {
-        const exixts = fs.existsSync(f);
-        if (exixts) {
-            const result = await loadAnatomyFromExcel(f);
+        const isBuffer = Buffer.isBuffer(input) || input instanceof ArrayBuffer;
+        const exists = isBuffer || fs.existsSync(input as string);
+        if (exists) {
+            const result = await loadAnatomyFromExcel(input);
             //console.log("Loaded excel");
             const codes = loadUniqueIcd10Codes(result);
             //console.log(JSON.stringify(codes, null, 1));
@@ -37,7 +39,7 @@ export async function getUniqueICD10Codes(f: string): Promise<string[]> {
             const sortedAndCleaned = uniqes.map(x => x.replace(".", "").trim()).sort();
             return sortedAndCleaned;
         } else {
-            throw new Error("File does not exist" + f);
+            throw new Error("File does not exist" + (typeof input === 'string' ? input : 'Buffer'));
         }
     } catch (err) {
         throw err;
